@@ -1,0 +1,52 @@
+# Archivos y carpetas del sistema
+.DS_Store
+*.iml
+*.hprof
+
+# Archivos de configuración de Android Studio
+.idea/
+.gradle/
+local.properties
+*.ipr
+*.iws
+
+# Carpetas de compilación
+/build/
+*/build/
+
+# Archivos de log
+*.log
+
+# Archivos de cache
+.cxx/
+.externalNativeBuild/
+.caches/
+captures/
+
+# Archivos de configuración de lint
+lint/reports/
+lint-results.*
+
+# Archivos generados por el IDE
+*.apk
+*.ap_
+*.dex
+*.class
+*.jar
+*.war
+*.ear
+*.db
+*.db-journal
+
+# Archivos de firma
+*.jks
+*.keystore
+
+# Carpeta de salida de NDK
+obj/
+
+# Otros
+*.swp
+*~.nib
+*.bak
+*.tmp
