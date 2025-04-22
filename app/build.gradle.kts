@@ -1,9 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.compose.compiler)
     id("kotlin-kapt")
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.plugin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -70,25 +71,14 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    // Cargar imágenes
-    implementation(libs.coil.compose)
-
-    // Live data
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-
-    // Coroutines
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.core)
-
     // Inyección de dependencias
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
+
+    // Cargar imagenes
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // Ktor
     implementation(libs.ktor.client.core)
@@ -96,6 +86,13 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
+
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 }
 
 kapt {

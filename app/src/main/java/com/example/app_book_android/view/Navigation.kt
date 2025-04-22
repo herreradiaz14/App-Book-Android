@@ -2,10 +2,12 @@ package com.example.app_book_android.view
 
 import android.annotation.SuppressLint
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -26,12 +28,28 @@ fun MainScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = BottomNavigation.Home.route) {
-        composable (BottomNavigation.Home.route) { Home() }
-        composable(BottomNavigation.Search.route) { Search() }
-        composable(BottomNavigation.Notification.route) { Notification() }
+        composable(BottomNavigation.Home.route) {
+            Scaffold(
+                topBar = { TopAppBar(title = { Text("AppBook") }) },
+                content = { Home() }
+            )
+        }
+        composable(BottomNavigation.Search.route) {
+            Scaffold(
+                topBar = { TopAppBar(title = { Text("Agregar libro") }) },
+                content = { Search() }
+            )
+        }
+        composable(BottomNavigation.Notification.route) {
+            Scaffold(
+                topBar = { TopAppBar(title = { Text("Notificaciones") }) },
+                content = { Notification() }
+            )
+        }
     }
 }
 
@@ -57,7 +75,7 @@ fun BottomTabBar(navController: NavHostController) {
                 onClick = {
                     navController.navigate(barItem.route) {
                         navController.graph.startDestinationRoute.let { route ->
-                            if ( route != null ) {
+                            if (route != null) {
                                 popUpTo(route) {
                                     saveState = true
                                 }
