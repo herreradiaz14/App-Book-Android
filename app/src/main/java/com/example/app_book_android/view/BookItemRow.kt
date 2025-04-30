@@ -7,18 +7,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.app_book_android.model.BookItem
+import com.example.app_book_android.utils.convertSecureURL
 
 @Composable
 fun BookItemRow(bookItem: BookItem) {
@@ -31,11 +30,7 @@ fun BookItemRow(bookItem: BookItem) {
         val imageUrl = bookItem.volumeInfo?.imageLinks?.thumbnail
         if (!imageUrl.isNullOrBlank()) {
             // Se realiza esto ya que las imágenes vienen con http
-            val secureImageUrl = if (imageUrl.startsWith("http://", ignoreCase = true)) {
-                imageUrl.replaceFirst("http://", "https://", ignoreCase = true)
-            } else {
-                imageUrl
-            }
+            val secureImageUrl = convertSecureURL(imageUrl)
 
             AsyncImage(
                 model = secureImageUrl,
@@ -43,10 +38,9 @@ fun BookItemRow(bookItem: BookItem) {
                 modifier = Modifier.size(30.dp)
             )
         } else {
-            Icon(
-                imageVector = Icons.Filled.AccountBox,
+            Image(
+                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
                 contentDescription = null,
-                tint = Color.White,
                 modifier = Modifier.size(30.dp)
             )
         }

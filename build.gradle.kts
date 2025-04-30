@@ -4,4 +4,5 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.kotlin.plugin.compose) apply false
+    alias(libs.plugins.googleServices) apply false
 }

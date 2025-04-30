@@ -42,7 +42,6 @@ fun Search(viewModel: SearchViewModel = hiltViewModel()) {
         modifier = Modifier
             .fillMaxSize()
             .padding(30.dp),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
@@ -62,7 +61,6 @@ fun Search(viewModel: SearchViewModel = hiltViewModel()) {
             textStyle = TextStyle(
                 color = Color.Black, fontSize = 20.sp
             ),
-
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -92,7 +90,7 @@ fun Search(viewModel: SearchViewModel = hiltViewModel()) {
                 }
             } else {
                 LazyColumn {
-                    items(books, key = {it.id}) { bookItem ->
+                    items(books, key = {it.id!!}) { bookItem ->
                         BookItemRow(bookItem)
                         HorizontalDivider()
                     }

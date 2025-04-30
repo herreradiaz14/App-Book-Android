@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.googleServices)
 }
 
 android {
@@ -93,6 +94,11 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 }
 
 kapt {

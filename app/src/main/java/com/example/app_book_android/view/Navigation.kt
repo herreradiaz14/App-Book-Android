@@ -34,7 +34,7 @@ fun NavigationGraph(navController: NavHostController) {
     NavHost(navController, startDestination = BottomNavigation.Home.route) {
         composable(BottomNavigation.Home.route) {
             Scaffold(
-                topBar = { TopAppBar(title = { Text("AppBook") }) },
+                topBar = { TopAppBar(title = { Text("Mis Libros") }) },
                 content = { Home() }
             )
         }

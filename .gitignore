@@ -42,6 +42,9 @@ lint-results.*
 *.jks
 *.keystore
 
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
 # Carpeta de salida de NDK
 obj/
 

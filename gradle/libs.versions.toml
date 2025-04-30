@@ -14,6 +14,8 @@ ktor = "3.1.2"
 coroutines = "1.9.0"
 hilt-navigation = "1.2.0"
 kotlinxSerializationJson = "1.6.3"
+firebaseBom = "33.13.0"
+services = "4.4.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -49,9 +51,14 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = {module = "com.google.firebase:firebase-auth-ktx" }
+firebase-firestore = {module= "com.google.firebase:firebase-firestore-ktx"}
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt"}
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "services"}
