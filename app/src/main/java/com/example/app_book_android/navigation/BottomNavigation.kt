@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavigation (
     val route: String,
-    val unselectedIcon: ImageVector,
-    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector? = null,
+    val selectedIcon: ImageVector? = null,
     val title: String,
 ){
     data object Home: BottomNavigation(
@@ -32,5 +32,9 @@ sealed class BottomNavigation (
         unselectedIcon = Icons.Outlined.Notifications,
         selectedIcon = Icons.Filled.Notifications,
         title = "Notificaciones"
+    )
+    data object BookDetail: BottomNavigation(
+        route = "book_detail",
+        title = "Detalle del libro"
     )
 }

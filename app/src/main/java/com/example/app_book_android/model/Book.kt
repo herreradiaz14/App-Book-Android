@@ -8,5 +8,8 @@ data class Book(
     val currentPage: Int = 0,
     val status: String? = null,
     val thumbnail: String? = null,
-    val idGoogle: String? = null
+    val idGoogle: String? = null,
+    val description: String? = null,
+    val publishedDate: String? = null,
+    val publisher: String? = null,
 )

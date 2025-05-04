@@ -4,13 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +31,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -47,26 +46,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavHostController
 import com.example.app_book_android.ui.theme.PurplePrimary
 import com.example.app_book_android.ui.theme.WhiteCard
 import com.example.app_book_android.utils.BookStatus
 import com.example.app_book_android.utils.Constants
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
+
 
 @Composable
-fun Home(viewModel: HomeViewModel = hiltViewModel()) {
+fun Home(viewModel: HomeViewModel = hiltViewModel(), navController: NavHostController) {
     val books by viewModel.books.collectAsState()
     val tabTitles = listOf("Por leer", "Leídos")
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 120.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(top = 110.dp, bottom = 25.dp)) {
         TabRow(
             selectedTabIndex = selectedTab,
-            containerColor = Color.White,
             contentColor = PurplePrimary,
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
@@ -98,20 +98,38 @@ fun Home(viewModel: HomeViewModel = hiltViewModel()) {
                 )
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
         when(selectedTab) {
             0 -> {
-                BookTab(books = books.filter { it.status != Constants.COMPLETED })
+                BookTab(
+                    books = books.filter { it.status != Constants.COMPLETED },
+                    viewModel = viewModel,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 0.dp),
+                    navController = navController
+                )
             }
             1 -> {
-                BookTab(books = books.filter { it.status == Constants.COMPLETED })
+                BookTab(
+                    books = books.filter { it.status == Constants.COMPLETED },
+                    viewModel = viewModel,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 0.dp),
+                    navController = navController
+                )
             }
         }
     }
 }
 
 @Composable
-fun BookTab(books: List<Book>, modifier: Modifier = Modifier) {
+fun BookTab(
+    books: List<Book>,
+    viewModel: HomeViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
     if (books.isEmpty()) {
         Box(
             modifier = modifier.fillMaxSize(),
@@ -121,54 +139,49 @@ fun BookTab(books: List<Book>, modifier: Modifier = Modifier) {
         }
     } else {
         LazyColumn(
-            modifier = Modifier
-                .padding(30.dp)
+            modifier = modifier
+                .padding(horizontal = 24.dp)
+                .padding(top = 28.dp, bottom = 8.dp),
+            contentPadding = PaddingValues(bottom = 80.dp)
         ) {
             items(books) { book ->
-                BookRow(book)
+                BookRow(book = book, viewBookDetailClick = {
+                    viewModel.viewBookDetail(navController, book.idGoogle.toString())
+                })
             }
         }
     }
 }
 
 @Composable
-fun BookRow(book: Book) {
+fun BookRow(book: Book, viewBookDetailClick: () -> Unit) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = WhiteCard),
         modifier = Modifier
             .padding(bottom = 10.dp)
+            .fillMaxWidth()
+            .clickable { viewBookDetailClick() }
     ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        )
-        {
-            val thumbnail = book.thumbnail.toString()
-            if (thumbnail.isBlank()){
-                Image(
-                    painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp)
-                )
-            }else{
-                AsyncImage(
-                    model = convertSecureURL(thumbnail),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(20.dp))
-            val statusEnum = BookStatus.fromKey(book.status ?: Constants.TO_READ)
-            Column {
-                Text(book.title.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("Autor: ${book.author}", fontSize = 14.sp)
-                Text("Estado: ${statusEnum.displayName}", fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                ProgressIndicator(book)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                val thumbnail = book.thumbnail.toString()
+                BookImage(thumbnail = thumbnail, thumbnailHeight = 100.dp)
+                Spacer(modifier = Modifier.width(20.dp))
+
+                val statusEnum = BookStatus.fromKey(book.status ?: Constants.TO_READ)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(book.title.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("Autor: ${book.author}", fontSize = 14.sp)
+                    Text("Estado: ${statusEnum.displayName}", fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ProgressIndicator(book)
+                }
             }
         }
     }
@@ -187,6 +200,23 @@ fun ProgressIndicator(book: Book) {
         )
 
         Spacer(modifier = Modifier.height(4.dp))
-        Text("${book.currentPage} de ${book.totalPages} páginas", fontSize = 12.sp)
+        Text("${book.currentPage} de ${book.totalPages} páginas", fontSize = 13.sp)
+    }
+}
+
+@Composable
+fun BookImage(thumbnail: String, thumbnailHeight: Dp) {
+    if (thumbnail.isBlank()){
+        Image(
+            painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+            contentDescription = null,
+            modifier = Modifier.height(thumbnailHeight)
+        )
+    }else{
+        AsyncImage(
+            model = convertSecureURL(thumbnail),
+            contentDescription = null,
+            modifier = Modifier.height(thumbnailHeight)
+        )
     }
 }

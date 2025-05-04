@@ -13,9 +13,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.app_book_android.navigation.BottomNavigation
 import androidx.compose.runtime.getValue
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -35,7 +37,7 @@ fun NavigationGraph(navController: NavHostController) {
         composable(BottomNavigation.Home.route) {
             Scaffold(
                 topBar = { TopAppBar(title = { Text("Mis Libros") }) },
-                content = { Home() }
+                content = { Home(navController = navController) }
             )
         }
         composable(BottomNavigation.Search.route) {
@@ -49,6 +51,16 @@ fun NavigationGraph(navController: NavHostController) {
                 topBar = { TopAppBar(title = { Text("Notificaciones") }) },
                 content = { Notification() }
             )
+        }
+
+        composable(
+            route = "${BottomNavigation.BookDetail}/{bookId}",
+            arguments = listOf(navArgument("bookId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val bookId = backStackEntry.arguments?.getString("bookId")
+            if (bookId != null) {
+                BookDetail(bookId = bookId, navController = navController)
+            }
         }
     }
 }
@@ -88,7 +100,7 @@ fun BottomTabBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
-                        imageVector = if (selected) barItem.selectedIcon else barItem.unselectedIcon,
+                        imageVector = if (selected) barItem.selectedIcon!! else barItem.unselectedIcon!!,
                         contentDescription = null
                     )
                 }

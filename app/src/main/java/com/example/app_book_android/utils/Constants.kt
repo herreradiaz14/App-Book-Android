@@ -2,6 +2,8 @@ package com.example.app_book_android.utils
 
 object Constants {
     const val BOOKS_COLLECTION = "books"
+    const val MY_COLLECTION = "my"
+    const val GUEST = "guest"
     const val COMPLETED = "completed"
     const val TO_READ = "to_read"
     const val IN_PROGRESS = "in_progress"
