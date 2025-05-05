@@ -14,10 +14,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.app_book_android.ui.theme.PurplePrimary
 import com.example.app_book_android.viewmodel.SearchViewModel
 
 @Composable
@@ -37,65 +42,97 @@ fun Search(viewModel: SearchViewModel = hiltViewModel()) {
     val books by viewModel.books.collectAsState()
     val searchQuery by viewModel.searchQuery
     val isLoading by viewModel.isLoading
+    val isPaginating by viewModel.isPaginating
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(30.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TextField(
-            value = searchQuery,
-            onValueChange = viewModel::searchBooks,
-            leadingIcon = { Icon(imageVector =  Icons.Filled.Search, contentDescription = "Buscar")},
-            placeholder = {
-                Text(text = "Ingrese un título o autor")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 90.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .border(2.dp, Color.White, RoundedCornerShape(30.dp)),
-            maxLines = 1,
-            singleLine = true,
-            textStyle = TextStyle(
-                color = Color.Black, fontSize = 20.sp
-            ),
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (isLoading) {
+    Scaffold(
+        content = { paddingValues ->
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            println(books)
-            if (books.isEmpty() && searchQuery.isNotBlank()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        Icons.Outlined.Info,
-                        contentDescription = null
+                TextField(
+                    value = searchQuery,
+                    onValueChange = viewModel::searchBooks,
+                    leadingIcon = {
+                        Icon(imageVector =  Icons.Filled.Search, contentDescription = "Buscar")
+                    },
+                    placeholder = {
+                        Text(text = "Ingrese un título o autor")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 90.dp)
+                        .clip(RoundedCornerShape(30.dp))
+                        .border(2.dp, Color.White, RoundedCornerShape(30.dp)),
+                    maxLines = 1,
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        color = Color.Black, fontSize = 20.sp
                     )
-                    Text(
-                        text = "Sin resultados que mostrar",
-                    )
-                }
-            } else {
-                LazyColumn {
-                    items(books, key = {it.id!!}) { bookItem ->
-                        BookItemRow(bookItem)
-                        HorizontalDivider()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (isLoading && books.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = PurplePrimary)
+                    }
+                } else if (books.isEmpty() && searchQuery.isNotBlank()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Outlined.Info,
+                            contentDescription = null
+                        )
+                        Text(
+                            text = "Sin resultados que mostrar",
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 80.dp)
+                    ) {
+                        items(books) { bookItem ->
+                            BookItemRow(bookItem)
+                            HorizontalDivider()
+                        }
+
+                        item {
+                            if (isPaginating) {
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    Arrangement.Center
+                                ) {
+                                    CircularProgressIndicator(color = PurplePrimary)
+                                }
+                            } else if (viewModel.totalItems != null && books.size < viewModel.totalItems!!) {
+                                FilledTonalButton(
+                                    onClick = { viewModel.loadMoreBooks() },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                ) {
+                                    Text(text = "Mostrar más")
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-    }
+    )
 }

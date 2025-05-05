@@ -14,7 +14,7 @@ class AppBookApiService @Inject constructor(
     // private val volumesEndpoint = "https://www.googleapis.com/books/v1/volumes"
     private val volumesEndpoint = "https://3aa00786-32d5-4d8f-bbeb-5900c893081c.mock.pstmn.io/books"
 
-    suspend fun searchBooks(query: String, startIndex: Int? = 0, maxResults: Int? = 20): BookResponse {
+    suspend fun searchBooks(query: String, startIndex: Int? = 0, maxResults: Int? = 10): BookResponse {
         val response: HttpResponse = client.get(urlString = volumesEndpoint) {
             parameter("q", query)
             parameter("startIndex", startIndex)

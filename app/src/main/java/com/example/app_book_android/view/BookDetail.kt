@@ -71,7 +71,7 @@ fun BookDetail(
         ) {
             if (book == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = PurplePrimary)
                 }
             } else {
                 Column(
@@ -134,6 +134,7 @@ fun BookDetail(
                         fontSize = 14.sp,
                         textAlign = TextAlign.Justify
                     )
+                    Spacer(modifier = Modifier.height(80.dp))
                 }
 
                 if (showDialog) {
