@@ -2,6 +2,7 @@ package com.example.app_book_android.network
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.app_book_android.model.Book
 import com.example.app_book_android.utils.Constants
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,20 +24,23 @@ class BookService @Inject constructor(private val firebaseClient: FirebaseClient
             }
     }
 
-    fun addBook(book: Book) {
+    fun addBook(book: Book, savedBookIds: SnapshotStateList<String>? = null) {
         firebaseClient.db.collection(Constants.BOOKS_COLLECTION)
             .document(userId)
             .collection(Constants.MY_COLLECTION)
             .add(book)
-            .addOnSuccessListener {
+            .addOnSuccessListener { snapshot ->
                 Log.d("Firestore", "Libro guardado exitosamente")
+                if (savedBookIds != null && !book.idGoogle.isNullOrBlank() && !savedBookIds.contains(book.idGoogle)) {
+                    savedBookIds.add(book.idGoogle)
+                }
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error al guardar libro", e)
             }
     }
 
-    fun loadBookByIdGoogle(idGoogle: String, book: MutableState<Book?>) {
+    fun loadBookByIdGoogle(idGoogle: String, book: MutableState<Book?>, savedBookIds: SnapshotStateList<String>? = null) {
         firebaseClient.db.collection(Constants.BOOKS_COLLECTION)
             .document(userId)
             .collection(Constants.MY_COLLECTION)
@@ -45,6 +49,10 @@ class BookService @Inject constructor(private val firebaseClient: FirebaseClient
             .get()
             .addOnSuccessListener { snapshot ->
                 book.value = snapshot.documents.firstOrNull()?.toObject(Book::class.java)
+
+                if (savedBookIds != null && !snapshot.isEmpty && !savedBookIds.contains(idGoogle)) {
+                    savedBookIds.add(idGoogle)
+                }
             }
             .addOnFailureListener { e ->
                 Log.e("BookDetailViewModel", "Error al cargar el libro", e)
@@ -69,6 +77,28 @@ class BookService @Inject constructor(private val firebaseClient: FirebaseClient
                     val updated = book.value?.copy(currentPage = currentPage, status = status)
                     book.value = updated
                 }
+            }
+    }
+
+    fun deleteBook(idGoogle: String) {
+        firebaseClient.db.collection(Constants.BOOKS_COLLECTION)
+            .document(userId)
+            .collection(Constants.MY_COLLECTION)
+            .whereEqualTo("idGoogle", idGoogle)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val doc = snapshot.documents.firstOrNull()
+                doc?.reference?.delete()
+                    ?.addOnSuccessListener {
+                        Log.d("Firestore", "Libro eliminado correctamente")
+                    }
+                    ?.addOnFailureListener {
+                        Log.e("Firestore", "Error al eliminar libro", it)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error al eliminar libro", e)
             }
     }
 }

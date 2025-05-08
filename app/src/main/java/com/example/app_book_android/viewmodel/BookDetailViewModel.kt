@@ -22,4 +22,8 @@ class BookDetailViewModel @Inject constructor(
     fun updateProgressAndStatus(idGoogle: String, currentPage: Int, status: String?) {
         bookService.updateProgress(idGoogle, currentPage, status, _book)
     }
+
+    fun deleteBook(bookId: String) {
+        bookService.deleteBook(bookId)
+    }
 }

@@ -31,6 +31,9 @@ class SearchViewModel @Inject constructor(
     private val _isPaginating = mutableStateOf(false)
     val isPaginating: State<Boolean> = _isPaginating
 
+    private val _errorMessage = mutableStateOf<String?>(null)
+    val errorMessage: State<String?> = _errorMessage
+
     var totalItems: Int? = null
     private var currentPage = 0
     private val maxResultsPerPage = 10
@@ -54,34 +57,40 @@ class SearchViewModel @Inject constructor(
     }
 
     fun searchByPagination(query: String, addListItem: Boolean = false ){
-        // No cargar más si: ya se está paginando; carga inicial (para no agregar a la lista); Si se llega al final del total
-        if (_isPaginating.value || (_isLoading.value && addListItem.not()) || (totalItems != null && _books.value.size >= totalItems!!)) {
-            return
-        }
-
-        searchJob?.cancel()
-        searchJob = viewModelScope.launch {
-            if (addListItem) {
-                _isPaginating.value = true
-            } else {
-                _isLoading.value = true
+        try {
+            _errorMessage.value = null
+            // No cargar más si: ya se está paginando; carga inicial (para no agregar a la lista); Si se llega al final del total
+            if (_isPaginating.value || (_isLoading.value && addListItem.not()) || (totalItems != null && _books.value.size >= totalItems!!)) {
+                return
             }
 
-            val startIndex = currentPage * maxResultsPerPage
-            val result = apiService.searchBooks(query, startIndex, maxResultsPerPage)
+            searchJob?.cancel()
+            searchJob = viewModelScope.launch {
+                if (addListItem) {
+                    _isPaginating.value = true
+                } else {
+                    _isLoading.value = true
+                }
 
-            totalItems = result.totalItems
+                val startIndex = currentPage * maxResultsPerPage
+                val result = apiService.searchBooks(query, startIndex, maxResultsPerPage)
 
-            val newItems = result.items ?: emptyList()
-            _books.value = if (addListItem) {
-                _books.value + newItems
-            } else {
-                newItems
+                totalItems = result.totalItems
+
+                val newItems = result.items ?: emptyList()
+                _books.value = if (addListItem) {
+                    _books.value + newItems
+                } else {
+                    newItems
+                }
+
+                currentPage++
+                _isLoading.value = false
+                _isPaginating.value = false
             }
-
-            currentPage++
-            _isLoading.value = false
-            _isPaginating.value = false
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+            _errorMessage.value = "No se han podido cargar los libros"
         }
     }
 

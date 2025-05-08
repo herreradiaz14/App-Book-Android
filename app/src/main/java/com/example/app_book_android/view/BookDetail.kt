@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -33,24 +34,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import com.example.app_book_android.model.Book
 import com.example.app_book_android.ui.theme.PurplePrimary
 import com.example.app_book_android.utils.BookStatus
 import com.example.app_book_android.utils.Constants
 import kotlin.toString
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetail(
     bookId: String, navController: NavController, viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     val book by viewModel.book
-    var showDialog by remember { mutableStateOf(false) }
-    var pageInput by remember { mutableStateOf("") }
-    var inputError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(bookId) {
         viewModel.loadBookById(bookId)
     }
+
+    BookDetailComplete(
+        book = book,
+        navController = navController,
+        viewModel = viewModel
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookDetailComplete(book: Book?, navController: NavController, viewModel: BookDetailViewModel) {
+    var showDialog by remember { mutableStateOf(false) }
+    var pageInput by remember { mutableStateOf("") }
+    var inputError by remember { mutableStateOf<String?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -82,44 +95,66 @@ fun BookDetail(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = book?.title ?: "Sin título",
+                        text = book.title ?: "Sin título",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(10.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp),
                         textAlign = TextAlign.Center
                     )
+
+                    val thumbnail = book.thumbnail.toString()
+                    BookImage(
+                        thumbnail = thumbnail,
+                        thumbnailHeight = 160.dp,
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+                    )
+
                     Text(
-                        text = "Autor: ${book?.author ?: "Sin autor"}",
+                        text = "Autor: ${book.author ?: "Sin autor"}",
                         fontSize = 16.sp
                     )
                     Text(
-                        text = "Editorial: ${book?.publisher ?: "No registrado"}",
+                        text = "Editorial: ${book.publisher ?: "No registrado"}",
                         fontSize = 15.sp
                     )
                     Text(
-                        text = "Publicado en: ${book!!.publishedDate ?: "-"}",
+                        text = "Publicado en: ${book.publishedDate ?: "-"}",
                         fontSize = 14.sp
                     )
 
-                    val thumbnail = book?.thumbnail.toString()
-                    BookImage(thumbnail = thumbnail, thumbnailHeight = 120.dp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    val statusEnum = BookStatus.fromKey(book?.status ?: Constants.TO_READ)
+                    val statusEnum = BookStatus.fromKey(book.status ?: Constants.TO_READ)
                     Text(text = "Estado: ${statusEnum.displayName}")
-                    ProgressIndicator(book=book!!)
+                    ProgressIndicator(book=book)
                     Spacer(modifier = Modifier.height(18.dp))
 
-                    Button(
-                        onClick = {
-                            inputError = null
-                            pageInput = book?.currentPage.toString()
-                            showDialog = true
-                        },
-                        modifier = Modifier
-                            .align(Alignment.Start),
-                        colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
-                    ) { Text("Registrar progreso") }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically // Optional: Align items vertically in the center
+                    ) {
+                        Button(
+                            onClick = {
+                                inputError = null
+                                pageInput = book.currentPage.toString()
+                                showDialog = true
+                            },
+                            modifier = Modifier,
+                            colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)
+                        ) {
+                            Text("Registrar progreso")
+                        }
+
+                        IconButton(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.padding(start = 10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Quitar de mi lista",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
 
                     HorizontalDivider(
                         modifier = Modifier.padding(bottom = 10.dp, top = 10.dp)
@@ -130,9 +165,8 @@ fun BookDetail(
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = book?.description ?: "Sin descripción",
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Justify
+                        text = book.description ?: "Sin descripción",
+                        fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.height(80.dp))
                 }
@@ -147,12 +181,12 @@ fun BookDetail(
                                     val pages = pageInput.toIntOrNull()
                                     if (pages == null || pages < 0) {
                                         inputError = "Ingresa un número válido"
-                                    } else if (pages > book!!.totalPages) {
-                                        inputError = "No puede superar ${book!!.totalPages} páginas"
+                                    } else if (pages > book.totalPages) {
+                                        inputError = "No puede superar ${book.totalPages} páginas"
                                     } else {
                                         val statusInitial = if (pages == 0) Constants.TO_READ else Constants.IN_PROGRESS
-                                        val newStatus = if (pages == book!!.totalPages) Constants.COMPLETED else statusInitial
-                                        viewModel.updateProgressAndStatus(bookId, pages, newStatus)
+                                        val newStatus = if (pages == book.totalPages) Constants.COMPLETED else statusInitial
+                                        viewModel.updateProgressAndStatus(book.idGoogle!!, pages, newStatus)
                                         showDialog = false
                                     }
                                 }
@@ -177,6 +211,28 @@ fun BookDetail(
                                 inputError?.let {
                                     Text(it, color = MaterialTheme.colorScheme.error)
                                 }
+                            }
+                        }
+                    )
+                }
+
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        title = { Text("Quitar de mi lista") },
+                        text = { Text("¿Está seguro de quitar este libro de su lista?") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                viewModel.deleteBook(book.idGoogle ?: "")
+                                showDeleteDialog = false
+                                navController.popBackStack()
+                            }) {
+                                Text("Quitar", color = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteDialog = false }) {
+                                Text("Cancelar")
                             }
                         }
                     )

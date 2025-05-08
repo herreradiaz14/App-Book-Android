@@ -52,6 +52,8 @@ import com.example.app_book_android.ui.theme.WhiteCard
 import com.example.app_book_android.utils.BookStatus
 import com.example.app_book_android.utils.Constants
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
 
@@ -90,7 +92,7 @@ fun Home(viewModel: HomeViewModel = hiltViewModel(), navController: NavHostContr
                                 tint = if (selectedTab == index) PurplePrimary else Color.Gray
                             )
                             Text(
-                                text = title.uppercase(),
+                                text = title,
                                 color = if (selectedTab == index) PurplePrimary else Color.Gray
                             )
                         }
@@ -164,14 +166,20 @@ fun BookRow(book: Book, viewBookDetailClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { viewBookDetailClick() }
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f, fill = false),
                 verticalAlignment = Alignment.CenterVertically
             )
             {
                 val thumbnail = book.thumbnail.toString()
-                BookImage(thumbnail = thumbnail, thumbnailHeight = 100.dp)
+                BookImage(thumbnail = thumbnail, thumbnailHeight = 100.dp, modifier = Modifier)
                 Spacer(modifier = Modifier.width(20.dp))
 
                 val statusEnum = BookStatus.fromKey(book.status ?: Constants.TO_READ)
@@ -183,6 +191,10 @@ fun BookRow(book: Book, viewBookDetailClick: () -> Unit) {
                     ProgressIndicator(book)
                 }
             }
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Ver detalles"
+            )
         }
     }
 }
@@ -205,18 +217,23 @@ fun ProgressIndicator(book: Book) {
 }
 
 @Composable
-fun BookImage(thumbnail: String, thumbnailHeight: Dp) {
-    if (thumbnail.isBlank()){
-        Image(
-            painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-            contentDescription = null,
-            modifier = Modifier.height(thumbnailHeight)
-        )
-    }else{
-        AsyncImage(
-            model = convertSecureURL(thumbnail),
-            contentDescription = null,
-            modifier = Modifier.height(thumbnailHeight)
-        )
+fun BookImage(thumbnail: String, thumbnailHeight: Dp, modifier: Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        if (thumbnail.isBlank()) {
+            Image(
+                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                contentDescription = null,
+                modifier = Modifier.height(thumbnailHeight)
+            )
+        } else {
+            AsyncImage(
+                model = convertSecureURL(thumbnail),
+                contentDescription = null,
+                modifier = Modifier.height(thumbnailHeight)
+            )
+        }
     }
 }
