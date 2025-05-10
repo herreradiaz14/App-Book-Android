@@ -15,8 +15,15 @@ class BookDetailViewModel @Inject constructor(
     private val _book = mutableStateOf<Book?>(null)
     val book = _book as State<Book?>
 
+    private val _actionMessage = mutableStateOf("")
+    val actionMessage: State<String> = _actionMessage
+
     fun loadBookById(bookId: String) {
-        bookService.loadBookByIdGoogle(bookId, _book)
+        bookService.loadBookByIdGoogle(
+            idGoogle =  bookId,
+            book = _book,
+            errorMessage = _actionMessage
+        )
     }
 
     fun updateProgressAndStatus(idGoogle: String, currentPage: Int, status: String?) {

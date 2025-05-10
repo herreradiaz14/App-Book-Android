@@ -1,5 +1,6 @@
 package com.example.app_book_android.view
 
+import android.widget.Toast
 import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.app_book_android.model.BookItem
@@ -35,6 +37,7 @@ import com.example.app_book_android.viewmodel.BookItemRowViewModel
 fun BookItemRow(bookItem: BookItem, viewModel: BookItemRowViewModel = hiltViewModel()) {
     var showDialog by remember { mutableStateOf(false) }
     val bookIsSave = viewModel.savedBookIds.contains(bookItem.id)
+    val context = LocalContext.current
 
     LaunchedEffect(bookItem.id) {
         viewModel.isBookSave(bookItem.id ?: "")
@@ -47,6 +50,11 @@ fun BookItemRow(bookItem: BookItem, viewModel: BookItemRowViewModel = hiltViewMo
             onSaveToList = {
                 viewModel.saveBookToMyList()
                 showDialog = false
+                Toast.makeText(
+                    context,
+                    "Agregado correctamente",
+                    Toast.LENGTH_LONG
+                ).show()
             },
             viewModel = viewModel
         )

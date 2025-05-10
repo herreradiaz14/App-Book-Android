@@ -53,6 +53,13 @@ fun NavigationGraph(navController: NavHostController) {
             )
         }
 
+        composable(BottomNavigation.Profile.route) {
+            Scaffold(
+                topBar = { TopAppBar(title = { Text("Perfil") }) },
+                content = { Profile() }
+            )
+        }
+
         composable(
             route = "${BottomNavigation.BookDetail}/{bookId}",
             arguments = listOf(navArgument("bookId") { type = NavType.StringType })
@@ -72,6 +79,7 @@ fun BottomTabBar(navController: NavHostController) {
         BottomNavigation.Home,
         BottomNavigation.Search,
         BottomNavigation.Notification,
+        BottomNavigation.Profile,
     )
 
     BottomAppBar {

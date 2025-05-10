@@ -54,8 +54,10 @@ import com.example.app_book_android.utils.Constants
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
+import com.example.app_book_android.viewmodel.ProfileViewModel
 
 
 @Composable
@@ -63,6 +65,21 @@ fun Home(viewModel: HomeViewModel = hiltViewModel(), navController: NavHostContr
     val books by viewModel.books.collectAsState()
     val tabTitles = listOf("Por leer", "Leídos")
     var selectedTab by remember { mutableIntStateOf(0) }
+
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val user by profileViewModel.user.collectAsState()
+
+    LaunchedEffect(Unit) {
+        profileViewModel.checkCurrentUser()
+    }
+
+    LaunchedEffect(user) {
+        if (user != null) {
+            viewModel.loadBooksForUser(user?.id ?: Constants.GUEST)
+        } else {
+            viewModel.loadBooksForUser(Constants.GUEST)
+        }
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -179,7 +196,7 @@ fun BookRow(book: Book, viewBookDetailClick: () -> Unit) {
             )
             {
                 val thumbnail = book.thumbnail.toString()
-                BookImage(thumbnail = thumbnail, thumbnailHeight = 100.dp, modifier = Modifier)
+                BookImage(thumbnail = thumbnail, thumbnailHeight = 90.dp, modifier = Modifier)
                 Spacer(modifier = Modifier.width(20.dp))
 
                 val statusEnum = BookStatus.fromKey(book.status ?: Constants.TO_READ)

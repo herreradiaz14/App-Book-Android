@@ -1,5 +1,6 @@
 package com.example.app_book_android.view
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
@@ -38,6 +40,7 @@ import com.example.app_book_android.model.Book
 import com.example.app_book_android.ui.theme.PurplePrimary
 import com.example.app_book_android.utils.BookStatus
 import com.example.app_book_android.utils.Constants
+import com.example.app_book_android.utils.parseHtmlToText
 import kotlin.toString
 
 @Composable
@@ -77,6 +80,16 @@ fun BookDetailComplete(book: Book?, navController: NavController, viewModel: Boo
             )
         }
     ) { innerPadding ->
+        val context = LocalContext.current
+
+        if(viewModel.actionMessage.value.toString().isNotBlank()){
+            Toast.makeText(
+                context,
+                viewModel.actionMessage.value,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
         Box(
             modifier = Modifier
                 .padding(innerPadding)
@@ -164,8 +177,11 @@ fun BookDetailComplete(book: Book?, navController: NavController, viewModel: Boo
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold
                     )
+
+                    // La descripción puede contener etiquetas HTML y se debe convertir a texto plano
+                    val description = parseHtmlToText(book.description?: "Sin descripción")
                     Text(
-                        text = book.description ?: "Sin descripción",
+                        text = description,
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.height(80.dp))
@@ -188,6 +204,11 @@ fun BookDetailComplete(book: Book?, navController: NavController, viewModel: Boo
                                         val newStatus = if (pages == book.totalPages) Constants.COMPLETED else statusInitial
                                         viewModel.updateProgressAndStatus(book.idGoogle!!, pages, newStatus)
                                         showDialog = false
+                                        Toast.makeText(
+                                            context,
+                                            "Se ha actualizado su progreso",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             ) { Text("Guardar") }
@@ -226,6 +247,11 @@ fun BookDetailComplete(book: Book?, navController: NavController, viewModel: Boo
                                 viewModel.deleteBook(book.idGoogle ?: "")
                                 showDeleteDialog = false
                                 navController.popBackStack()
+                                Toast.makeText(
+                                    context,
+                                    "Se ha quitado de su lista",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }) {
                                 Text("Quitar", color = MaterialTheme.colorScheme.error)
                             }

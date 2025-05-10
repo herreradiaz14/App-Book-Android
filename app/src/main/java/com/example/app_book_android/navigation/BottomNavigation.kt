@@ -1,9 +1,11 @@
 package com.example.app_book_android.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
@@ -31,7 +33,13 @@ sealed class BottomNavigation (
         route = "notification",
         unselectedIcon = Icons.Outlined.Notifications,
         selectedIcon = Icons.Filled.Notifications,
-        title = "Notificaciones"
+        title = "Notificac."
+    )
+    data object Profile: BottomNavigation(
+        route = "profile",
+        unselectedIcon = Icons.Outlined.AccountCircle,
+        selectedIcon = Icons.Filled.AccountCircle,
+        title = "Perfil"
     )
     data object BookDetail: BottomNavigation(
         route = "book_detail",

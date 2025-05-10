@@ -12,13 +12,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    bookService: BookService
+    val bookService: BookService
 ) : ViewModel() {
     private val _books = MutableStateFlow<List<Book>>(emptyList())
     val books: StateFlow<List<Book>> = _books
 
-    init {
-        bookService.getAllBooks(_books)
+    fun loadBooksForUser(userId: String) {
+        bookService.getAllBooks(_books, userId)
     }
 
     fun viewBookDetail(navController: NavHostController, bookId: String) {
