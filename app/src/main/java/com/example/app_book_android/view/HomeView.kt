@@ -54,6 +54,7 @@ import com.example.app_book_android.utils.Constants
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
@@ -69,6 +70,9 @@ fun Home(viewModel: HomeViewModel = hiltViewModel(), navController: NavHostContr
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val user by profileViewModel.user.collectAsState()
 
+    val isLoading by viewModel.isLoading.collectAsState()
+
+
     LaunchedEffect(Unit) {
         profileViewModel.checkCurrentUser()
     }
@@ -81,62 +85,75 @@ fun Home(viewModel: HomeViewModel = hiltViewModel(), navController: NavHostContr
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(top = 110.dp, bottom = 25.dp)) {
-        TabRow(
-            selectedTabIndex = selectedTab,
-            contentColor = PurplePrimary,
-            indicator = { tabPositions ->
-                TabRowDefaults.SecondaryIndicator(
-                    Modifier
-                        .tabIndicatorOffset(tabPositions[selectedTab])
-                        .horizontalScroll(rememberScrollState())
-                        .padding(start = 30.dp, end = 30.dp, top = 30.dp),
-                    color = PurplePrimary
-                )
-            }
+    if (isLoading) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            tabTitles.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = if (index == 0) Icons.Outlined.Menu else Icons.Outlined.CheckCircle,
-                                contentDescription = title,
-                                tint = if (selectedTab == index) PurplePrimary else Color.Gray
-                            )
-                            Text(
-                                text = title,
-                                color = if (selectedTab == index) PurplePrimary else Color.Gray
-                            )
-                        }
-                    }
-                )
-            }
+            CircularProgressIndicator(color = PurplePrimary)
         }
-        when(selectedTab) {
-            0 -> {
-                BookTab(
-                    books = books.filter { it.status != Constants.COMPLETED },
-                    viewModel = viewModel,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 0.dp),
-                    navController = navController
-                )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 110.dp, bottom = 25.dp)
+        ) {
+            TabRow(
+                selectedTabIndex = selectedTab,
+                contentColor = PurplePrimary,
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        Modifier
+                            .tabIndicatorOffset(tabPositions[selectedTab])
+                            .horizontalScroll(rememberScrollState())
+                            .padding(start = 30.dp, end = 30.dp, top = 30.dp),
+                        color = PurplePrimary
+                    )
+                }
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = if (index == 0) Icons.Outlined.Menu else Icons.Outlined.CheckCircle,
+                                    contentDescription = title,
+                                    tint = if (selectedTab == index) PurplePrimary else Color.Gray
+                                )
+                                Text(
+                                    text = title,
+                                    color = if (selectedTab == index) PurplePrimary else Color.Gray
+                                )
+                            }
+                        }
+                    )
+                }
             }
-            1 -> {
-                BookTab(
-                    books = books.filter { it.status == Constants.COMPLETED },
-                    viewModel = viewModel,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 0.dp),
-                    navController = navController
-                )
+            when (selectedTab) {
+                0 -> {
+                    BookTab(
+                        books = books.filter { it.status != Constants.COMPLETED },
+                        viewModel = viewModel,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 0.dp),
+                        navController = navController
+                    )
+                }
+
+                1 -> {
+                    BookTab(
+                        books = books.filter { it.status == Constants.COMPLETED },
+                        viewModel = viewModel,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 0.dp),
+                        navController = navController
+                    )
+                }
             }
         }
     }

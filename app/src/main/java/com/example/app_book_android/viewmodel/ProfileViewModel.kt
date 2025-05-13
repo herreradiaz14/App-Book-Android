@@ -20,16 +20,21 @@ class ProfileViewModel @Inject constructor(
     val user : StateFlow<User?> = _user
 
     fun signInWithEmailAndPassword(email: String, password: String) {
-        firebaseClient.auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _loginResult.value = Result.success(Unit)
-                    val loggedUser = firebaseClient.auth.currentUser
-                    _user.value = User(id = loggedUser?.uid, email = loggedUser?.email)
-                } else {
-                    _loginResult.value = Result.failure(task.exception ?: Exception("Error"))
+        try {
+            firebaseClient.auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _loginResult.value = Result.success(Unit)
+                        val loggedUser = firebaseClient.auth.currentUser
+                        _user.value = User(id = loggedUser?.uid, email = loggedUser?.email)
+                    } else {
+                        _loginResult.value = Result.failure(task.exception ?: Exception("Error"))
+                    }
                 }
-            }
+        } catch (e: Exception) {
+            _loginResult.value = Result.failure(Exception("Ingrese un usuario y contraseña válidos"))
+            println("Error: ${e.message}")
+        }
     }
 
     fun logout() {

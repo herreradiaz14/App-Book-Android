@@ -17,8 +17,12 @@ class HomeViewModel @Inject constructor(
     private val _books = MutableStateFlow<List<Book>>(emptyList())
     val books: StateFlow<List<Book>> = _books
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun loadBooksForUser(userId: String) {
-        bookService.getAllBooks(_books, userId)
+        _isLoading.value = true
+        bookService.getAllBooks(_books, userId, _isLoading)
     }
 
     fun viewBookDetail(navController: NavHostController, bookId: String) {
