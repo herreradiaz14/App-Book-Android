@@ -15,12 +15,18 @@ import kotlin.random.Random
 class NotificationService: FirebaseMessagingService() {
     private val random = Random
 
-    override fun onMessageReceived(message: RemoteMessage) {
-        message.notification?.let { message ->
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        remoteMessage.notification?.let { message ->
             Log.i("Notification Title", "${message.title}")
             Log.i("Notification Body", "${message.body}")
+
+            // Verificar si el mensaje tiene un ID de libro
+            val idGoogle = if (remoteMessage.data.isNotEmpty()) {
+                remoteMessage.data["idGoogle"]
+            } else ""
+            Log.i("Notification Data", "idGoogle = $idGoogle")
             showNotification(message)
-            saveNotificationUser(message)
+            saveNotificationUser(message, idGoogle?:"")
         }
     }
 
@@ -51,11 +57,14 @@ class NotificationService: FirebaseMessagingService() {
         Log.d("Notification","New token: $token")
     }
 
-    private fun saveNotificationUser(message: RemoteMessage.Notification){
+    private fun saveNotificationUser(
+        message: RemoteMessage.Notification, idGoogle: String
+    ){
         val bookService = BookService(firebaseClient = FirebaseClient())
         bookService.saveNotification(
             title = message.title.toString(),
-            body = message.body.toString()
+            body = message.body.toString(),
+            idGoogle = idGoogle
         )
     }
 }

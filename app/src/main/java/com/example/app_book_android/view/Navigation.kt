@@ -49,7 +49,7 @@ fun NavigationGraph(navController: NavHostController) {
         composable(BottomNavigation.Notification.route) {
             Scaffold(
                 topBar = { TopAppBar(title = { Text("Notificaciones") }) },
-                content = { Notification() }
+                content = { Notification(navController = navController) }
             )
         }
 

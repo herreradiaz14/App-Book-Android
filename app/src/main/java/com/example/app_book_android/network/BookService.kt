@@ -124,12 +124,13 @@ class BookService @Inject constructor(private val firebaseClient: FirebaseClient
             }
     }
 
-    fun saveNotification(title: String, body: String) {
+    fun saveNotification(title: String, body: String, idGoogle: String) {
         val userId = firebaseClient.auth.currentUser?.uid ?: Constants.GUEST
 
         val notification = hashMapOf(
             "title" to title,
             "body" to body,
+            "idGoogle" to idGoogle,
             "timestamp" to FieldValue.serverTimestamp()
         )
 

@@ -1,5 +1,7 @@
 package com.example.app_book_android.view
 
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,10 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.app_book_android.model.NotificationBook
 import com.example.app_book_android.ui.theme.PurplePrimary
 import com.example.app_book_android.ui.theme.WhiteCard
@@ -38,10 +42,12 @@ import java.util.Locale
 
 
 @Composable
-fun Notification(viewModel: NotificationViewModel = hiltViewModel()) {
+fun Notification(
+    viewModel: NotificationViewModel = hiltViewModel(), navController: NavHostController
+) {
     val notifications by viewModel.notifications.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
+    val context = LocalContext.current
 
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val user by profileViewModel.user.collectAsState()
@@ -60,7 +66,7 @@ fun Notification(viewModel: NotificationViewModel = hiltViewModel()) {
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(top = 100.dp, bottom = 25.dp, start = 30.dp, end = 30.dp)
+        .padding(top = 105.dp, bottom = 25.dp, start = 30.dp, end = 30.dp)
     ) {
         when {
             isLoading -> {
@@ -92,7 +98,19 @@ fun Notification(viewModel: NotificationViewModel = hiltViewModel()) {
             else -> {
                 LazyColumn {
                     items(notifications) { notification ->
-                        NotificationItem(notification)
+                        NotificationItem(notification = notification, viewBookDetailClick = {
+                            val idGoogle = notification.idGoogle.toString()
+
+                            if (idGoogle.isNotBlank()) {
+                                viewModel.viewBookDetail(navController, notification.idGoogle.toString())
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Sin información",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        })
                     }
                 }
             }
@@ -101,10 +119,11 @@ fun Notification(viewModel: NotificationViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun NotificationItem(notification: NotificationBook) {
+fun NotificationItem(notification: NotificationBook, viewBookDetailClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { viewBookDetailClick() }
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(8.dp),

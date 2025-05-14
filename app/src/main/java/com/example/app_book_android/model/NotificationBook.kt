@@ -5,5 +5,6 @@ import com.google.firebase.Timestamp
 data class NotificationBook(
     val title: String = "",
     val body: String = "",
+    val idGoogle: String = "",
     val timestamp: Timestamp? = null
 )

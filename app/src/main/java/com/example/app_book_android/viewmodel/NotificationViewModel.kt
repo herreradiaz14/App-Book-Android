@@ -1,7 +1,9 @@
 package com.example.app_book_android.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import com.example.app_book_android.model.NotificationBook
+import com.example.app_book_android.navigation.BottomNavigation
 import com.example.app_book_android.network.BookService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,5 +23,9 @@ class NotificationViewModel @Inject constructor(
 
     fun loadNotifications(userId: String) {
         bookService.getAllNotifications(_notifications, userId, _isLoading)
+    }
+
+    fun viewBookDetail(navController: NavHostController, bookId: String) {
+        navController.navigate("${BottomNavigation.BookDetail}/${bookId}")
     }
 }
